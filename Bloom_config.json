@@ -1,0 +1,19 @@
+{
+    "model_type": "bloom",
+    "model_name_or_path": "/xxx/bloomz-7b1-mt",
+    "data_path": "data_dir/train_data_家庭教育.jsonl",
+    "output_dir": "trained_models/bloom_domain_家庭教育",
+    "batch_size": 1,
+    "per_device_train_batch_size": 1,
+    "num_epochs": 100,
+    "learning_rate": 1e-5,
+    "cutoff_len": 256,
+    "val_set_size": 1000,
+    "val_set_rate": 0.1,
+    "save_steps": 1000,
+    "eval_steps":200,
+    "warmup_steps":10,
+    "logging_steps":10,
+    "gradient_accumulation_steps":1
+}
+  
