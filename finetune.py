@@ -15,6 +15,7 @@ from peft import (
 
 os.environ["WANDB_DISABLED"] = "true"
 
+
 def get_logger(logger_name, output_dir):
     logger = logging.getLogger(logger_name)
     logger.setLevel(logging.DEBUG)
@@ -97,14 +98,14 @@ def train(args):
         return result
 
     def generate_and_tokenize_prompt(data_point):
-        question = data_point['question']
-        input_text = "人类:" + question + "\n\n机器人:"
+        instruction = data_point['instruction']
+        input_text = data_point["input"]
+        input_text = "用户:" + instruction + input_text + "\n\n助手:"
         input_text = tokenizer.bos_token + input_text if tokenizer.bos_token != None else input_text
-        target_text = data_point["answer"] + tokenizer.eos_token
-
-
+        target_text = data_point["output"] + tokenizer.eos_token
         full_prompt = input_text + target_text
         tokenized_full_prompt = tokenize(full_prompt)
+
         if not args.train_on_inputs:
             user_prompt = input_text
             tokenized_user_prompt = tokenize(user_prompt, add_eos_token=False)
@@ -173,7 +174,7 @@ def train(args):
             eval_steps=model_config["eval_steps"] if val_set_size > 0 else None,
             save_steps=model_config["save_steps"],
             output_dir=output_dir,
-            save_total_limit=3,
+            save_total_limit=6,
             load_best_model_at_end=False,
             ddp_find_unused_parameters=False if ddp else None,
             deepspeed=args.deepspeed if not args.use_lora else None,

@@ -21,6 +21,7 @@ def get_model(base_model):
             device_map="auto",
         )
         if os.path.exists(args.lora_weights):
+            print('==========LOAD LORA==========')
             model = PeftModel.from_pretrained(
                 model,
                 args.lora_weights,
@@ -43,12 +44,10 @@ def get_model(base_model):
 
 def load_dev_data(dev_file_path=''):
     dev_data = []
-    pred_num = 10
     with open(dev_file_path) as f:
-        lines = f.readlines()[:pred_num]
+        lines = f.readlines()
         for line in lines:
             dev_data.append(json.loads(line.strip()))
-    print(dev_data[:pred_num])
     return dev_data
 
 
@@ -58,7 +57,7 @@ def generate_text(dev_data, batch_size, tokenizer, model, skip_special_tokens=Tr
         batch = dev_data[i:i + batch_size]
         batch_text = []
         for item in batch:
-            input_text = "人类: " + item['question'] + "\n\n机器人:"
+            input_text = "用户:" + item['instruction'] + item['input'] + "\n\n助手:"
             batch_text.append(tokenizer.bos_token + input_text if tokenizer.bos_token != None else input_text)
             # 改输入
 
@@ -86,12 +85,12 @@ def generate_text(dev_data, batch_size, tokenizer, model, skip_special_tokens=Tr
             input_text = batch_text[i]
             input_text = input_text.replace(tokenizer.bos_token, "")
             predict_text = output_texts[i][len(input_text):]
-            res.append({"input": input_text, "predict": predict_text, "target": batch[i]["answer"]})
+            res.append({"input": input_text, "predict": predict_text, "target": batch[i]["output"]})
     return res
 
 
 def main(args):
-    dev_data = load_dev_data(args.dev_file)[:50]
+    dev_data = load_dev_data(args.dev_file)
     res = generate_text(dev_data, batch_size, tokenizer, model)
     with open(args.output_file, 'w') as f:
         json.dump(res, f, ensure_ascii=False, indent=4)
@@ -104,7 +103,7 @@ if __name__ == "__main__":
     parser.add_argument("--max_length", type=int, default=512, help="max length of dataset")
     parser.add_argument("--dev_batch_size", type=int, default=1, help="batch size")
     parser.add_argument("--lora_weights", default="", type=str, help="use lora")
-    parser.add_argument("--output_file", type=str, default="data_dir/predictions.json")
+    parser.add_argument("--output_file", type=str, default="output_dir/predictions.json")
 
     args = parser.parse_args()
     batch_size = args.dev_batch_size
