@@ -45,9 +45,9 @@ def get_model(base_model):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate")
-    parser.add_argument("--model_name_or_path", type=str, default="/xx/bloomz-3b", help="pretrained language model")
+    parser.add_argument("--model_name_or_path", type=str, default="/home/hpn/down_model/bloomz-560m", help="pretrained language model")
     parser.add_argument("--max_length", type=int, default=512, help="max length of dataset")
-    parser.add_argument("--lora_weights", default="trained_models/xx/", type=str, help="use lora")
+    parser.add_argument("--lora_weights", default="trained_models/bloomz_560m_domain_大量测试", type=str, help="use lora")
     args = parser.parse_args()
 
     tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
